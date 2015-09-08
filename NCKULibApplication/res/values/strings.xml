@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">成功大學圖書館</string>
+    <string-array name="Navigation_array">
+        <item>首頁</item>
+        <item>推播訊息</item>
+        <item>登錄</item>
+    </string-array>
+    <string-array name="unit_array">
+        <item>系統組</item>
+        <item>典藏組</item>
+        <item>行政室</item>
+        <item>採購組</item>
+        <item>資訊服務組</item>
+        <item>醫分院</item>
+        <item>多媒體</item>
+        <item>期刊室</item>
+        <item>閱覽室</item>
+    </string-array>
+    <string name="is_loading">正在加載</string>
+    <string name="reloading">下拉或點擊可以加載</string>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
+    <string name="action_websearch">Web search</string>
+     <string name="action_setting">Setting</string>
+    <string name="app_not_available">Sorry, there\'s no web browser available</string>    
+    <string name="title">Title</string>
+    <string name="_2014_03_10">Date</string>
+    <string name="contents">Contents</string>
+
+</resources>

@@ -1,0 +1,10 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/action_websearch"
+          android:icon="@drawable/action_search"
+          android:title="@string/action_websearch"
+          android:showAsAction="ifRoom|withText" />
+    <item android:id="@+id/action_setting"  
+          android:icon="@drawable/action_setting"  
+          android:title="@string/action_setting"
+          android:showAsAction="ifRoom"/>  
+</menu>
