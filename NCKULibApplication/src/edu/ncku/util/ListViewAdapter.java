@@ -40,7 +40,6 @@ public class ListViewAdapter extends BaseAdapter {
 
 		showMessages = new LinkedList<Message>();
 		for (int i = 0; i < show; i++) {
-			Log.d(DEBUG_TAG, "Get message from : " + i);
 			showMessages.add(messages.get(i));
 		}
 	}
@@ -188,7 +187,6 @@ public class ListViewAdapter extends BaseAdapter {
 			}
 
 			holder.imgGroupIcon.setImageResource(id);
-//			holder.txtContents.setText(MessageContextFilter.removeHtmlTag((contents!=null)?contents:""));
 			
 		} catch (Exception e) {
 			e.printStackTrace();

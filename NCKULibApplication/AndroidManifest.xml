@@ -32,11 +32,21 @@
             android:exported="true" >
         </service>
 
+        <!-- 
         <receiver
             android:name=".io.NetworkCheckReceiver"
             android:label="NetworkConnection" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
+        -->
+        
+         <receiver
+            android:name=".io.StartOnceRcvMsgTaskReciever"
+            android:label="RecieveMessageTask" >
+            <intent-filter>
+                <action android:name="android.intent.action.ONCERCVMSGTASK_RECEIVER" />
             </intent-filter>
         </receiver>
     </application>

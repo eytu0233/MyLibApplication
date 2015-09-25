@@ -2,15 +2,18 @@ package edu.ncku;
 
 import edu.ncku.LoadMoreListView.OnLoadMore;
 import edu.ncku.io.MessageReaderTask;
+import edu.ncku.io.MessageRecieveService;
 import edu.ncku.util.ListViewAdapter;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.util.Log;
@@ -25,7 +28,7 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 	
 	private static final String DEBUG_FLAG = MessageListFragment.class.getName();
 	public static final String FINISH_FLUSH_FLAG = "FinishFlushFlag";
-	private static final int UPDATE_SHOW_NUM = 5;	
+	private static int PRELOAD_MSGS_NUM;
 	
 	private Handler mHandler = new Handler();	
 	
@@ -33,12 +36,20 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 	private SwipeRefreshLayout swip;
 	private MyReceiver receiver;
 	private ListViewAdapter listViewAdapter;
-	private Context context;
+	private Context mContext;
+	private SharedPreferences sp;
 	
 	private int numShowedMsgs = 0;
 	
 	public MessageListFragment(Context context){
-		this.context = context;
+		this.mContext = context;
+		
+		this.sp = PreferenceManager.getDefaultSharedPreferences(context);
+		PRELOAD_MSGS_NUM = Integer.valueOf(sp.getString("PRELOAD_MSGS_MAX", "0"));
+		
+		if(PRELOAD_MSGS_NUM <= 0){
+			Log.e(DEBUG_FLAG, "PRELOAD_MSGS_NUM is smaller  than zero");
+		}
 	}
 
 	@Override
@@ -54,7 +65,7 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 		swip.setColorSchemeResources(android.R.color.holo_blue_light,
 				android.R.color.holo_red_light,
 				android.R.color.holo_orange_light,
-				android.R.color.holo_green_light);	
+				android.R.color.holo_green_light);
 
 		/**
 		 * register MyReciever
@@ -62,7 +73,7 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 		receiver = new MyReceiver();
 		IntentFilter filter = new IntentFilter();
 		filter.addAction("android.intent.action.MY_RECEIVER");
-		context.registerReceiver(receiver, filter);
+		mContext.registerReceiver(receiver, filter);
 		
 		Log.d(DEBUG_FLAG, "ReaderTask start!");
 		updateList();
@@ -73,7 +84,7 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		super.onDestroy();
-		context.unregisterReceiver(receiver);
+		mContext.unregisterReceiver(receiver);
 	}
 
 	@Override
@@ -83,8 +94,8 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 			mHandler.postDelayed(new Runnable() {
 				@Override
 				public void run() {
-					
-					listViewAdapter.showMoreOldMessaage(UPDATE_SHOW_NUM);
+
+					listViewAdapter.showMoreOldMessaage(Integer.valueOf(sp.getString("LOAD_MSGS_MAX", "0")));
 					numShowedMsgs = listViewAdapter	.getNumShowedMsgs();
 					Log.v("MessageListActivity", "show : " + numShowedMsgs);
 
@@ -125,9 +136,9 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 		/* Read data in background and reflesh the listview of this activity */
 		try {
 			Log.v(DEBUG_FLAG, "want to show : "
-					+ (numShowedMsgs + UPDATE_SHOW_NUM));
+					+ (numShowedMsgs + PRELOAD_MSGS_NUM));
 			MessageReaderTask msgReaderTask = new MessageReaderTask(this, numShowedMsgs
-					+ UPDATE_SHOW_NUM);
+					+ PRELOAD_MSGS_NUM);
 			msgReaderTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR);
 			listViewAdapter = msgReaderTask.get();
 			if (listViewAdapter != null) {
@@ -145,7 +156,7 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 	private void onceActiveUpdateMessageData() {
 		Intent intent = new Intent();
 		intent.setAction("android.intent.action.ONCERCVMSGTASK_RECEIVER");
-		context.sendBroadcast(intent);
+		mContext.sendBroadcast(intent);
 	}
 	
 	/**

@@ -1,15 +1,16 @@
 package edu.ncku;
 
-import java.util.Locale;
-
 import edu.ncku.io.MessageRecieveService;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,8 +20,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -29,7 +28,7 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
-	private static final String DEBUG_TAG = MainActivity.class.getName();	
+	private static final String DEBUG_FLAG = MainActivity.class.getName();
 
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
@@ -37,16 +36,18 @@ public class MainActivity extends Activity {
 
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
-	private String[] mNavigationList;
+	private String[] mNavigationNormalList;
+	private String[] mNavigationLoginList;
 
-	private MessageListFragment mMsgListFragment;
-	private HomePageFragment mHomePageFragment;
+	private Fragment mMsgListFragment;
+	private Fragment mHomePageFragment;
+	private Fragment mSettingFragment;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		
+
 		initUI();
 
 		initComponent();
@@ -55,9 +56,7 @@ public class MainActivity extends Activity {
 			selectItem(0);
 		}
 
-		Log.d(DEBUG_TAG, "MessageRecieveService start!");
-		Intent serviceIntent = new Intent(this, MessageRecieveService.class);
-		startService(serviceIntent);
+//		stopMessagerService();
 	}
 
 	@Override
@@ -85,35 +84,71 @@ public class MainActivity extends Activity {
 		}
 		// Handle action buttons
 		switch (item.getItemId()) {
-		case R.id.action_websearch:
-			// create intent to perform web search for this planet
-			Intent intent = new Intent(Intent.ACTION_WEB_SEARCH);
-			intent.putExtra(SearchManager.QUERY, getActionBar().getTitle());
-			// catch event that there's no activity to handle intent
-			if (intent.resolveActivity(getPackageManager()) != null) {
-				startActivity(intent);
-			} else {
-				Toast.makeText(this, R.string.app_not_available,
-						Toast.LENGTH_LONG).show();
-			}
+		case R.id.action_setting:
+			clearBackStackFragment();
+			getFragmentManager().beginTransaction()
+					.replace(R.id.content_frame, mSettingFragment).commit();
+			setTitle(R.string.setting);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
 	
-	private void initUI(){
+	public void startMessagerService(){
 		
+		Intent serviceIntent = new Intent(this,
+				MessageRecieveService.class);
+		
+		if (startService(serviceIntent) != null) {
+			Log.d(DEBUG_FLAG,
+					"MessageRecieveService start!");
+		} else {
+			Log.e(DEBUG_FLAG,
+					"MessageRecieveService start fail!");
+		}
+	}
+
+	public void stopMessagerService(){		
+		
+		Intent serviceIntent = new Intent(this,
+				MessageRecieveService.class);
+		
+		if (stopService(serviceIntent)) {
+			Log.d(DEBUG_FLAG,
+					"MessageRecieveService stop!");
+		} else {
+			Log.e(DEBUG_FLAG,
+					"MessageRecieveService stop fail!");
+		}	
+	}
+	
+	public void changeNavigationNormalList(){
+		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+				R.layout.drawer_list_item, mNavigationNormalList));
+		selectItem(0);
+	}
+	
+	public void changeNavigationLoginList(){
+		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+				R.layout.drawer_list_item, mNavigationLoginList));
+		selectItem(0);
+	}
+
+	private void initUI() {
+
 		mTitle = mDrawerTitle = getTitle();
-		mNavigationList = getResources().getStringArray(
-				R.array.Navigation_array);
+		mNavigationNormalList = getResources().getStringArray(
+				R.array.Navigation_normal_array);
+		mNavigationLoginList = getResources().getStringArray(
+				R.array.Navigation_login_array);
 		mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 		mDrawerList = (ListView) findViewById(R.id.left_drawer);
 
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				R.layout.drawer_list_item, mNavigationList));
+				R.layout.drawer_list_item, mNavigationNormalList));
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -142,12 +177,13 @@ public class MainActivity extends Activity {
 		};
 		mDrawerLayout.setDrawerListener(mDrawerToggle);
 	}
-	
-	private void initComponent(){		
-		
+
+	private void initComponent() {
+
 		mHomePageFragment = new HomePageFragment();
 		mMsgListFragment = new MessageListFragment(getApplicationContext());
-		
+		mSettingFragment = new PrefFragment();
+
 	}
 
 	private class DrawerItemClickListener implements
@@ -161,35 +197,46 @@ public class MainActivity extends Activity {
 
 	private void selectItem(int position) {
 		// update the main content by replacing fragments
+		String navigationTilte = mDrawerList.getAdapter().getItem(position)
+				.toString();
 		Fragment fragment = null;
 
-		switch (position) {
-		case 0:
+		if (getResources().getString(R.string.home_page)
+				.equals(navigationTilte)) {
 			fragment = mHomePageFragment;
-			break;
-		case 1:
+			setTitle(navigationTilte);
+		} else if (getResources().getString(R.string.messager).equals(
+				navigationTilte)) {
 			fragment = mMsgListFragment;
-			break;
-		default:
-			Log.d(DEBUG_TAG, "Select no definition fragment!");
+			setTitle(navigationTilte);
+		} else if (getResources().getString(R.string.login).equals(
+				navigationTilte)) {
+			(new LoginDialog(this)).show(
+					getFragmentManager(), "Dialog");
+			mDrawerLayout.closeDrawer(mDrawerList);
+			return;
+		} else if (getResources().getString(R.string.logout).equals(
+				navigationTilte)) {
+			changeNavigationNormalList();
+			stopMessagerService();
+			mDrawerLayout.closeDrawer(mDrawerList);
+			return;
+		} else {
+			Log.e(DEBUG_FLAG, "Select no definition fragment!");
 			mDrawerList.setItemChecked(position, true);
-			setTitle(mNavigationList[position]);
+			setTitle(mNavigationNormalList[position]);
 			mDrawerLayout.closeDrawer(mDrawerList);
 			return;
 		}
 
-		FragmentManager fragmentManager = getFragmentManager();
-		// clear the back stack for fragmentManager 
-		for(int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {   
-			fragmentManager.popBackStack();		
+		if (fragment != null) {
+			clearBackStackFragment();
+			getFragmentManager().beginTransaction()
+					.replace(R.id.content_frame, fragment).commit();
 		}
-
-		fragmentManager.beginTransaction()
-				.replace(R.id.content_frame, fragment).commit();
 
 		// update selected item and title, then close the drawer
 		mDrawerList.setItemChecked(position, true);
-		setTitle(mNavigationList[position]);
 		mDrawerLayout.closeDrawer(mDrawerList);
 	}
 
@@ -218,37 +265,6 @@ public class MainActivity extends Activity {
 		mDrawerToggle.onConfigurationChanged(newConfig);
 	}
 
-	/**
-	 * Fragment that appears in the "content_frame", shows a planet
-	 */
-	public static class PlanetFragment extends Fragment {
-		public static final String ARG_PLANET_NUMBER = "planet_number";
-
-		public PlanetFragment() {
-			// Empty constructor required for fragment subclasses
-		}
-
-		@Override
-		public View onCreateView(LayoutInflater inflater, ViewGroup container,
-				Bundle savedInstanceState) {
-			View rootView = inflater.inflate(R.layout.fragment_planet,
-					container, false);
-			int i = getArguments().getInt(ARG_PLANET_NUMBER);
-			String planet = getResources().getStringArray(
-					R.array.Navigation_array)[i];
-
-			int imageId = getResources().getIdentifier(
-					planet.toLowerCase(Locale.getDefault()), "drawable",
-					getActivity().getPackageName());
-
-			((ImageView) rootView.findViewById(R.id.image))
-					.setImageResource(imageId);
-			getActivity().setTitle(planet);
-
-			return rootView;
-		}
-	}
-
 	public static class HomePageFragment extends Fragment {
 
 		public HomePageFragment() {
@@ -263,5 +279,13 @@ public class MainActivity extends Activity {
 			return rootView;
 		}
 
+	}
+
+	private void clearBackStackFragment() {
+		FragmentManager fragmentManager = getFragmentManager();
+		// clear the back stack for fragmentManager
+		for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
+			fragmentManager.popBackStack();
+		}
 	}
 }
