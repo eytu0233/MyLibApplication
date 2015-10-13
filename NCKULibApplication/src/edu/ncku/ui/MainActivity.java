@@ -1,16 +1,24 @@
-package edu.ncku;
+package edu.ncku.ui;
 
+import edu.ncku.R;
+import edu.ncku.R.array;
+import edu.ncku.R.drawable;
+import edu.ncku.R.id;
+import edu.ncku.R.layout;
+import edu.ncku.R.menu;
+import edu.ncku.R.string;
 import edu.ncku.io.MessageRecieveService;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.SearchManager;
-import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -19,12 +27,12 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
@@ -51,12 +59,16 @@ public class MainActivity extends Activity {
 		initUI();
 
 		initComponent();
+		
+		String parameters = getIntent().getStringExtra("mainActivityParameter");			
 
-		if (savedInstanceState == null) {
+		if (parameters == null) {
 			selectItem(0);
+		}else if("Message Notification".equals(parameters)){
+			selectItem((isLogin())?1:0);
+		}else{
+			Log.e(DEBUG_FLAG, "parameters undefined!");
 		}
-
-//		stopMessagerService();
 	}
 
 	@Override
@@ -70,7 +82,6 @@ public class MainActivity extends Activity {
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		// TODO Auto-generated method stub
 		boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-		menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -85,51 +96,45 @@ public class MainActivity extends Activity {
 		// Handle action buttons
 		switch (item.getItemId()) {
 		case R.id.action_setting:
-			clearBackStackFragment();
-			getFragmentManager().beginTransaction()
-					.replace(R.id.content_frame, mSettingFragment).commit();
+			getFragmentManager().beginTransaction().addToBackStack(null)
+					.addToBackStack(null).add(R.id.content_frame, mSettingFragment).commit();
 			setTitle(R.string.setting);
 			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
 	}
-	
-	public void startMessagerService(){
-		
-		Intent serviceIntent = new Intent(this,
-				MessageRecieveService.class);
-		
+
+	public void startMessagerService() {
+
+		Intent serviceIntent = new Intent(this, MessageRecieveService.class);
+
 		if (startService(serviceIntent) != null) {
-			Log.d(DEBUG_FLAG,
-					"MessageRecieveService start!");
+			Log.d(DEBUG_FLAG, "MessageRecieveService start!");
 		} else {
-			Log.e(DEBUG_FLAG,
-					"MessageRecieveService start fail!");
+			Log.e(DEBUG_FLAG, "MessageRecieveService start fail!");
+		}
+		
+	}
+
+	public void stopMessagerService() {
+
+		Intent serviceIntent = new Intent(this, MessageRecieveService.class);
+
+		if (stopService(serviceIntent)) {
+			Log.d(DEBUG_FLAG, "MessageRecieveService stop!");
+		} else {
+			Log.e(DEBUG_FLAG, "MessageRecieveService stop fail!");
 		}
 	}
 
-	public void stopMessagerService(){		
-		
-		Intent serviceIntent = new Intent(this,
-				MessageRecieveService.class);
-		
-		if (stopService(serviceIntent)) {
-			Log.d(DEBUG_FLAG,
-					"MessageRecieveService stop!");
-		} else {
-			Log.e(DEBUG_FLAG,
-					"MessageRecieveService stop fail!");
-		}	
-	}
-	
-	public void changeNavigationNormalList(){
+	public void changeNavigationNormalList() {
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
 				R.layout.drawer_list_item, mNavigationNormalList));
 		selectItem(0);
 	}
-	
-	public void changeNavigationLoginList(){
+
+	public void changeNavigationLoginList() {
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
 				R.layout.drawer_list_item, mNavigationLoginList));
 		selectItem(0);
@@ -148,7 +153,7 @@ public class MainActivity extends Activity {
 		mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow,
 				GravityCompat.START);
 		mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-				R.layout.drawer_list_item, mNavigationNormalList));
+				R.layout.drawer_list_item, (isLogin())?mNavigationLoginList:mNavigationNormalList));
 		mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
 		getActionBar().setDisplayHomeAsUpEnabled(true);
@@ -180,10 +185,61 @@ public class MainActivity extends Activity {
 
 	private void initComponent() {
 
-		mHomePageFragment = new HomePageFragment();
+		mHomePageFragment = new HomePageFragment(this);
 		mMsgListFragment = new MessageListFragment(getApplicationContext());
 		mSettingFragment = new PrefFragment();
+		
+	}
 
+	private boolean isLogin() {
+		
+		final SharedPreferences SP = PreferenceManager
+				.getDefaultSharedPreferences(getApplicationContext());
+		String username = SP.getString("username", ""), password = SP.getString("password",
+				"");
+		
+		Log.d(DEBUG_FLAG, "username : " + username);
+		Log.d(DEBUG_FLAG, "password : " + password);
+
+		if ("".equals(username) || "".equals(password)) {
+			return false;
+		} else {
+			return true;
+		}
+
+	}
+	
+	private void logout(){
+		final SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		final SharedPreferences.Editor SPE = SP.edit();
+		
+		SPE.putString("username", "");
+		SPE.putString("password", "");
+		SPE.apply();
+	}
+	
+	private void clearBackStackFragment() {
+		FragmentManager fragmentManager = getFragmentManager();
+		// clear the back stack for fragmentManager
+		for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
+			fragmentManager.popBackStack();
+		}
+	}
+	
+	/**
+	 * Check the service is alive or not
+	 * 
+	 * @param serviceClass
+	 * @return Alive state of the service
+	 */
+	private boolean isServiceRunning(Class<?> serviceClass) {
+	    ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+	    for (RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+	        if (serviceClass.getName().equals(service.service.getClassName())) {
+	            return true;
+	        }
+	    }
+	    return false;
 	}
 
 	private class DrawerItemClickListener implements
@@ -209,16 +265,21 @@ public class MainActivity extends Activity {
 				navigationTilte)) {
 			fragment = mMsgListFragment;
 			setTitle(navigationTilte);
+			if(!isServiceRunning(MessageRecieveService.class)){
+				startMessagerService();
+			}
 		} else if (getResources().getString(R.string.login).equals(
 				navigationTilte)) {
-			(new LoginDialog(this)).show(
-					getFragmentManager(), "Dialog");
+			(new LoginDialog(this)).show(getFragmentManager(), "Dialog");
 			mDrawerLayout.closeDrawer(mDrawerList);
 			return;
 		} else if (getResources().getString(R.string.logout).equals(
 				navigationTilte)) {
 			changeNavigationNormalList();
-			stopMessagerService();
+			if(isServiceRunning(MessageRecieveService.class)){
+				stopMessagerService();
+			}
+			logout();
 			mDrawerLayout.closeDrawer(mDrawerList);
 			return;
 		} else {
@@ -267,8 +328,16 @@ public class MainActivity extends Activity {
 
 	public static class HomePageFragment extends Fragment {
 
-		public HomePageFragment() {
+		private Fragment mLibInfoListFragment;
+		
+		private Activity mMainActivity;
+		private ImageView mLibInfoImageView;
+		
+		public HomePageFragment(Activity mainActivity) {
 
+			mMainActivity = mainActivity;
+			mLibInfoListFragment = new LibInfoListFragment();
+			
 		}
 
 		@Override
@@ -276,16 +345,24 @@ public class MainActivity extends Activity {
 				Bundle savedInstanceState) {
 			View rootView = inflater.inflate(R.layout.fragment_homepage,
 					container, false);
+			mLibInfoImageView = (ImageView) rootView.findViewById(R.id.libInfoImgBtn);
+			mLibInfoImageView.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					FragmentManager fragmentManager = getActivity()
+							.getFragmentManager();
+					fragmentManager.beginTransaction().addToBackStack(null)
+							.add(R.id.content_frame, mLibInfoListFragment).commit();
+					mMainActivity.setTitle(R.string.homepage_ic_info);
+				}
+				
+			});
 			return rootView;
 		}
 
 	}
 
-	private void clearBackStackFragment() {
-		FragmentManager fragmentManager = getFragmentManager();
-		// clear the back stack for fragmentManager
-		for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
-			fragmentManager.popBackStack();
-		}
-	}
+	
 }

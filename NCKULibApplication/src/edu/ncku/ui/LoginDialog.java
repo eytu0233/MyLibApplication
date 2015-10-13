@@ -1,18 +1,25 @@
-package edu.ncku;
+package edu.ncku.ui;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.ncku.R;
+import edu.ncku.R.id;
+import edu.ncku.R.layout;
+import edu.ncku.R.string;
 import edu.ncku.io.LoginTask;
+import edu.ncku.util.ILoginResultListener;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,14 +33,22 @@ public class LoginDialog extends DialogFragment {
 
 	private static final String DEBUG_FLAG = LoginDialog.class.getName();
 
-	private Handler mhandler = new Handler();
-
 	private MainActivity mainActivity;
 	private Context context;
 	private Button mBtnLogin, mBtnCancel;
 	private EditText mEditUsername, mEditPassword;
 	private TextView mTxtTip;
 	private ProgressBar mPBLogin;
+	
+	private boolean runningLogin = false;
+	
+	private synchronized boolean isRunningLogin(){
+		return runningLogin;
+	}
+	
+	private synchronized void setRunningLogin(boolean runningLogin){
+		this.runningLogin = runningLogin;
+	}
 
 	public LoginDialog(MainActivity mainActivity) {
 		this.mainActivity = mainActivity;
@@ -66,6 +81,7 @@ public class LoginDialog extends DialogFragment {
 			@Override
 			public void onClick(View v) {
 				// TODO Auto-generated method stub
+				setRunningLogin(true);
 				mPBLogin.setVisibility(View.VISIBLE);
 				mBtnLogin.setVisibility(View.INVISIBLE);
 
@@ -80,6 +96,7 @@ public class LoginDialog extends DialogFragment {
 					mTxtTip.setText(R.string.void_account_or_password);
 					mPBLogin.setVisibility(View.INVISIBLE);
 					mBtnLogin.setVisibility(View.VISIBLE);
+					setRunningLogin(false);
 					return;
 				}
 
@@ -87,54 +104,41 @@ public class LoginDialog extends DialogFragment {
 					mTxtTip.setText(R.string.network_disconnected);
 					mPBLogin.setVisibility(View.INVISIBLE);
 					mBtnLogin.setVisibility(View.VISIBLE);
+					setRunningLogin(false);
 					return;
-				}
+				}			
+				
+				final Map<String, String> params = new HashMap<String, String>();
+				params.put("username", username);
+				params.put("password", password);
 
-				Thread loginThread = new Thread(new Runnable() {
+				LoginTask loginTask = new LoginTask(new ILoginResultListener(){
 
 					@Override
-					public void run() {
+					public void loginEvent(boolean login) {
 						// TODO Auto-generated method stub
-						try {
-
-							final Map<String, String> params = new HashMap<String, String>();
-							params.put("username", username);
-							params.put("password", password);
-
-							LoginTask loginTask = new LoginTask();
-							loginTask.executeOnExecutor(
-									AsyncTask.THREAD_POOL_EXECUTOR, params);
-
-							final boolean login = loginTask.get();
-							Log.d(DEBUG_FLAG, "login : " + login);
-
-							mhandler.post(new Runnable() {
-
-								@Override
-								public void run() {
-									// TODO Auto-generated method stub
-									mPBLogin.setVisibility(View.INVISIBLE);
-									mBtnLogin.setVisibility(View.VISIBLE);
-									if (login) {
-										mainActivity
-												.changeNavigationLoginList();
-										mainActivity.startMessagerService();
-									} else {
-										mTxtTip.setText(R.string.invalid_account_or_password);
-									}
-								}
-
-							});
-
-						} catch (Exception e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+						mPBLogin.setVisibility(View.INVISIBLE);
+						mBtnLogin.setVisibility(View.VISIBLE);
+						if (login) {
+							mainActivity
+									.changeNavigationLoginList();
+							mainActivity.startMessagerService();
+							final SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+				    		final SharedPreferences.Editor SPE = SP.edit();
+				    		
+				    		SPE.putString("username", username);
+				    		SPE.putString("password", password);
+				    		SPE.apply();
+						} else {
+							mTxtTip.setText(R.string.invalid_account_or_password);
 						}
+						
+						setRunningLogin(false);
 					}
-
+					
 				});
-				loginThread.setDaemon(true);
-				loginThread.start();
+				loginTask.executeOnExecutor(
+						AsyncTask.THREAD_POOL_EXECUTOR, params);
 			}
 
 		});
@@ -153,6 +157,7 @@ public class LoginDialog extends DialogFragment {
 	@Override
 	public void onStop() {
 		// TODO Auto-generated method stub
+		if(isRunningLogin()) return;
 		Log.d(DEBUG_FLAG, "onStop");
 		super.onStop();
 	}

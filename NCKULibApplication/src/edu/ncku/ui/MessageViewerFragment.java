@@ -1,5 +1,8 @@
-package edu.ncku;
+package edu.ncku.ui;
 
+import edu.ncku.R;
+import edu.ncku.R.id;
+import edu.ncku.R.layout;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.LayoutInflater;

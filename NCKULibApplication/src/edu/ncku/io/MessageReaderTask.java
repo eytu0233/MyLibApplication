@@ -5,7 +5,7 @@ import java.io.FileInputStream;
 import java.io.ObjectInputStream;
 import java.util.LinkedList;
 
-import edu.ncku.MessageListFragment;
+import edu.ncku.ui.MessageListFragment;
 import edu.ncku.util.ListViewAdapter;
 import edu.ncku.util.Message;
 import android.content.Context;

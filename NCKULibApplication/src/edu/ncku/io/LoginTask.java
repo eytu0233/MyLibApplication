@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 import edu.ncku.security.Security;
+import edu.ncku.util.ILoginResultListener;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -20,6 +21,13 @@ public class LoginTask extends AsyncTask<Map<String, String>, Void, Boolean> {
 	private static final String DEBUG_FLAG = LoginTask.class.getName();
 
 	private static final String ATHU_URL = "http://reader.lib.ncku.edu.tw/login/index.php";
+	
+	private ILoginResultListener resultListener;	
+
+	public LoginTask(ILoginResultListener resultListener) {
+		super();
+		this.resultListener = resultListener;
+	}
 
 	@Override
 	protected Boolean doInBackground(Map<String, String>... params) {
@@ -58,16 +66,11 @@ public class LoginTask extends AsyncTask<Map<String, String>, Void, Boolean> {
 			byte[] data = new byte[1024];
 			int idx = input.read(data);
 			String str = new String(data, 0, idx);
-			Log.d(DEBUG_FLAG, "str : " + str);
 			if (str.contains("OK")) {
 				result = true;
 			}
 			input.close();
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return false;
-		} catch (IOException e) {
+		}  catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
@@ -76,4 +79,12 @@ public class LoginTask extends AsyncTask<Map<String, String>, Void, Boolean> {
 		return result;
 	}
 
+	@Override
+	protected void onPostExecute(Boolean result) {
+		// TODO Auto-generated method stub
+		if(resultListener != null) resultListener.loginEvent(result);
+		super.onPostExecute(result);
+	}
+
+	
 }

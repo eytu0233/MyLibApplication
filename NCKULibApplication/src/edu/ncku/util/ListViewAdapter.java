@@ -2,8 +2,8 @@ package edu.ncku.util;
 
 import java.util.LinkedList;
 
-import edu.ncku.MessageViewerFragment;
 import edu.ncku.R;
+import edu.ncku.ui.MessageViewerFragment;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;

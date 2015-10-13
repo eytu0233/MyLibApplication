@@ -1,20 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/main_background"
+    android:orientation="vertical"
     android:paddingBottom="@dimen/activity_vertical_margin"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="edu.ncku.MainActivity" >
+    tools:context="edu.ncku.ui.MainActivity" >
+
+    <View
+        android:id="@+id/spaceView1"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_weight="0.00" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <Space
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ImageView
+        android:id="@+id/icEnterImgView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:src="@drawable/main_title_icon_s" />
+
+    <View
+        android:id="@+id/spaceView2"
+        android:layout_width="wrap_content"
+        android:layout_height="50dp"
+        android:layout_weight="0.00" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/imgViewSearchTitle"
-        android:gravity="center_horizontal"
+        android:gravity="center_horizontal|end"
         android:orientation="vertical" >
 
         <LinearLayout
@@ -45,7 +71,6 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:src="@drawable/main_icon_borrow" />
-
         </LinearLayout>
 
         <LinearLayout
@@ -54,7 +79,7 @@
             android:gravity="center_horizontal" >
 
             <ImageButton
-                android:id="@+id/imageButton4"
+                android:id="@+id/libInfoImgBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -68,31 +93,7 @@
                 android:layout_weight="1"
                 android:background="@null"
                 android:src="@drawable/main_icon_activity" />
-
-            <ImageButton
-                android:id="@+id/imageButton6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="@null"
-                android:src="@drawable/main_icon_setting" />
-
         </LinearLayout>
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/imgViewSearchTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginTop="42dp"
-        android:src="@drawable/main_search_bar" />
-
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:src="@drawable/main_title_icon" />
-
-</RelativeLayout>
+</LinearLayout>

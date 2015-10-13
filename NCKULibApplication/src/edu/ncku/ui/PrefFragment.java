@@ -1,8 +1,13 @@
-package edu.ncku;
+package edu.ncku.ui;
 
+import edu.ncku.R;
+import edu.ncku.R.string;
+import edu.ncku.R.xml;
+import android.R.color;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -10,15 +15,26 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 public class PrefFragment extends PreferenceFragment {
 	
 	private static final String DEBUG_TAG = PrefFragment.class.getName();
 
 	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+	    View view = super.onCreateView(inflater, container, savedInstanceState);
+	    view.setBackgroundColor(getResources().getColor(android.R.color.white));
+
+	    return view;
+	}
+	
+	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
-		super.onCreate(savedInstanceState);
+		super.onCreate(savedInstanceState);		
 		
 		this.addPreferencesFromResource(R.xml.preferences);
 		final CheckBoxPreference checkboxPref = (CheckBoxPreference) getPreferenceManager().findPreference("MESSAGER_SUBSCRIPTION");

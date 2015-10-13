@@ -1,5 +1,8 @@
-package edu.ncku;
+package edu.ncku.ui;
 
+import edu.ncku.R;
+import edu.ncku.R.id;
+import edu.ncku.R.layout;
 import android.annotation.SuppressLint;  
 import android.content.Context;  
 import android.util.AttributeSet;  

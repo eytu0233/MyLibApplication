@@ -17,7 +17,7 @@ public class MessageRecieveService extends Service {
 	@Override
 	public IBinder onBind(Intent intent) {
 		// TODO Auto-generated method stub
-		Log.e(DEBUG_FLAG, "onBind");
+		Log.d(DEBUG_FLAG, "onBind");
 		return null;
 	}
 
@@ -25,7 +25,7 @@ public class MessageRecieveService extends Service {
 	public int onStartCommand(Intent intent, int flags, int startId) {
 		// TODO Auto-generated method stub
 		try {
-			Log.e(DEBUG_FLAG, "onStart");
+			Log.d(DEBUG_FLAG, "onStart");
 			IntentFilter filter = new IntentFilter();
 			filter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
 			registerReceiver(mNetworkStateReceiver, filter);
@@ -38,14 +38,14 @@ public class MessageRecieveService extends Service {
 
 	@Override
 	public void onDestroy() {
-		Log.e(DEBUG_FLAG, "onDestroy");
+		Log.d(DEBUG_FLAG, "onDestroy");
 		unregisterReceiver(mNetworkStateReceiver);
 		super.onDestroy();
 	}
 
 	@Override
 	public boolean onUnbind(Intent intent) {
-		Log.e(DEBUG_FLAG, "onUnbind");
+		Log.d(DEBUG_FLAG, "onUnbind");
 		return super.onUnbind(intent);
 	}
 

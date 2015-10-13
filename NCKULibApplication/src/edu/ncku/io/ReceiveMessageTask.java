@@ -30,9 +30,9 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import edu.ncku.MainActivity;
 import edu.ncku.R;
 import edu.ncku.security.Security;
+import edu.ncku.ui.MainActivity;
 import edu.ncku.util.Message;
 
 class ReceiveMessageTask extends TimerTask {
@@ -128,12 +128,12 @@ class ReceiveMessageTask extends TimerTask {
 			notificationIntent.addCategory(Intent.CATEGORY_LAUNCHER);
 			notificationIntent.setClass(mContext, MainActivity.class);
 			notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-					| Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-			notificationIntent.putExtra("menuFragment", "Message Notification");
+					| Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			notificationIntent.putExtra("mainActivityParameter", "Message Notification");
 			
 			
 			PendingIntent resultPendingIntent = PendingIntent.getActivity(
-					mContext, PendingIntent.FLAG_CANCEL_CURRENT,
+					mContext, PendingIntent.FLAG_UPDATE_CURRENT,
 					notificationIntent, 0);
 
 			/* Show the created notification */

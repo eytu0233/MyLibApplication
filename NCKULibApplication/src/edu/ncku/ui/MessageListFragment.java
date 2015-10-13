@@ -1,8 +1,11 @@
-package edu.ncku;
+package edu.ncku.ui;
 
-import edu.ncku.LoadMoreListView.OnLoadMore;
+import edu.ncku.R;
+import edu.ncku.R.id;
+import edu.ncku.R.layout;
 import edu.ncku.io.MessageReaderTask;
 import edu.ncku.io.MessageRecieveService;
+import edu.ncku.ui.LoadMoreListView.OnLoadMore;
 import edu.ncku.util.ListViewAdapter;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -45,7 +48,7 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 		this.mContext = context;
 		
 		this.sp = PreferenceManager.getDefaultSharedPreferences(context);
-		PRELOAD_MSGS_NUM = Integer.valueOf(sp.getString("PRELOAD_MSGS_MAX", "0"));
+		PRELOAD_MSGS_NUM = Integer.valueOf(sp.getString("PRELOAD_MSGS_MAX", "10"));
 		
 		if(PRELOAD_MSGS_NUM <= 0){
 			Log.e(DEBUG_FLAG, "PRELOAD_MSGS_NUM is smaller  than zero");
@@ -95,7 +98,7 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 				@Override
 				public void run() {
 
-					listViewAdapter.showMoreOldMessaage(Integer.valueOf(sp.getString("LOAD_MSGS_MAX", "0")));
+					listViewAdapter.showMoreOldMessaage(Integer.valueOf(sp.getString("LOAD_MSGS_MAX", "10")));
 					numShowedMsgs = listViewAdapter	.getNumShowedMsgs();
 					Log.v("MessageListActivity", "show : " + numShowedMsgs);
 
@@ -157,6 +160,13 @@ public class MessageListFragment extends Fragment implements OnRefreshListener,
 		Intent intent = new Intent();
 		intent.setAction("android.intent.action.ONCERCVMSGTASK_RECEIVER");
 		mContext.sendBroadcast(intent);
+		
+		mHandler.postDelayed(new Runnable() {
+			@Override
+			public void run() {
+				swip.setRefreshing(false);
+			}
+		}, 2000);
 	}
 	
 	/**

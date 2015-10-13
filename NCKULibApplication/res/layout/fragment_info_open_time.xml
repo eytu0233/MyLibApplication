@@ -2,13 +2,14 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/White"
     android:orientation="vertical" >
 
-    <ListView
-        android:id="@+id/infoListView"
+    <ExpandableListView
+        android:id="@+id/openTimeExpListView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-    </ListView>
+        android:layout_height="wrap_content" 
+        android:indicatorLeft="0dp"
+        android:indicatorRight="350dp">
+    </ExpandableListView>
 
 </LinearLayout>
