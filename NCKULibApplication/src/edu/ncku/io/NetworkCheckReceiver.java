@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Handler;
 import android.util.Log;
 
 public class NetworkCheckReceiver extends BroadcastReceiver {
@@ -20,6 +21,7 @@ public class NetworkCheckReceiver extends BroadcastReceiver {
 	private NetworkInfo currentNetworkInfo;
 	private Context mContext;
 	private Timer messgeReceiveTimer = new Timer();
+	private Handler mHandler = new Handler();
 
 	public NetworkCheckReceiver() {
 		super();
@@ -44,18 +46,30 @@ public class NetworkCheckReceiver extends BroadcastReceiver {
 				Log.d(DEBUG_FLAG, "連上網路");
 
 				if (!ReceiveMessageTask.isStartSchedulingTask) {
-					ReceiveMessageTask rcvMsgTask = new ReceiveMessageTask(false,
+					final ReceiveMessageTask rcvMsgTask = new ReceiveMessageTask(false,
 							mContext);
 					rcvMsgTask.setStopSchedulingTaskListener(new IStopSchedulingTask(){
 
 						@Override
 						public void stopSchedulingTask() {
 							// TODO Auto-generated method stub
-							messgeReceiveTimer.cancel();
-							Log.d(DEBUG_FLAG, "關閉Timer");
+							rcvMsgTask.cancel();
+							int purge = messgeReceiveTimer.purge();
+							if(purge > 0) Log.d(DEBUG_FLAG, "關閉Timer");
+							else Log.w(DEBUG_FLAG, "關閉Timer fail");
 						}});
-					messgeReceiveTimer.schedule(rcvMsgTask, 0, SCAN_MINUTES * MINISEC_MIN);
-					ReceiveMessageTask.isStartSchedulingTask = true;
+					mHandler.post(new Runnable(){
+
+						@Override
+						public void run() {
+							// TODO Auto-generated method stub
+							messgeReceiveTimer.schedule(rcvMsgTask, 0, SCAN_MINUTES * MINISEC_MIN);
+							ReceiveMessageTask.isStartSchedulingTask = true;
+							Log.d(DEBUG_FLAG, "messgeReceiveTimer schedule success");
+						}
+						
+					});
+					
 				}
 			}
 		} catch (RuntimeException e) {

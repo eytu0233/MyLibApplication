@@ -1,4 +1,4 @@
-package edu.ncku.ui;
+package edu.ncku.ui.libinfo;
 
 import edu.ncku.R;
 import edu.ncku.R.array;

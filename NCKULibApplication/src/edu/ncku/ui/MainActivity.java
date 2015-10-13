@@ -8,6 +8,7 @@ import edu.ncku.R.layout;
 import edu.ncku.R.menu;
 import edu.ncku.R.string;
 import edu.ncku.io.MessageRecieveService;
+import edu.ncku.ui.libinfo.LibInfoListFragment;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningServiceInfo;

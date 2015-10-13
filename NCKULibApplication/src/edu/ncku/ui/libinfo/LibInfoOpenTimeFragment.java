@@ -1,4 +1,4 @@
-package edu.ncku.ui;
+package edu.ncku.ui.libinfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
