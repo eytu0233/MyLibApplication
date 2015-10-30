@@ -1,5 +1,7 @@
 package edu.ncku.ui;
 
+import java.util.LinkedList;
+
 import edu.ncku.R;
 import edu.ncku.R.array;
 import edu.ncku.R.drawable;
@@ -8,17 +10,24 @@ import edu.ncku.R.layout;
 import edu.ncku.R.menu;
 import edu.ncku.R.string;
 import edu.ncku.io.MessageRecieveService;
+import edu.ncku.ui.irsearch.IRSearchFragment;
 import edu.ncku.ui.libinfo.LibInfoListFragment;
+import edu.ncku.ui.news.NewsFragment;
+import edu.ncku.ui.recentActivity.RecentActivityFragment;
+import edu.ncku.util.CrashHandler;
 import android.app.Activity;
 import android.app.ActivityManager;
+import android.app.AlertDialog;
 import android.app.ActivityManager.RunningServiceInfo;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -42,6 +51,8 @@ public class MainActivity extends Activity {
 	private DrawerLayout mDrawerLayout;
 	private ListView mDrawerList;
 	private ActionBarDrawerToggle mDrawerToggle;
+	
+	private LinkedList<String> titleStack = new LinkedList<String>();
 
 	private CharSequence mDrawerTitle;
 	private CharSequence mTitle;
@@ -55,6 +66,10 @@ public class MainActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		CrashHandler crashHandler = CrashHandler.getInstance(); 
+		crashHandler.init(getApplicationContext()); 
+		
 		setContentView(R.layout.activity_main);
 
 		initUI();
@@ -96,7 +111,7 @@ public class MainActivity extends Activity {
 		}
 		// Handle action buttons
 		switch (item.getItemId()) {
-		case R.id.action_setting:
+		case R.id.imageViewLayout:
 			getFragmentManager().beginTransaction().addToBackStack(null)
 					.addToBackStack(null).add(R.id.content_frame, mSettingFragment).commit();
 			setTitle(R.string.setting);
@@ -225,6 +240,8 @@ public class MainActivity extends Activity {
 		for (int i = 0; i < fragmentManager.getBackStackEntryCount(); i++) {
 			fragmentManager.popBackStack();
 		}
+		
+		titleStack.clear();
 	}
 	
 	/**
@@ -304,14 +321,40 @@ public class MainActivity extends Activity {
 
 	@Override
 	public void setTitle(CharSequence title) {
+		titleStack.push(mTitle.toString());
 		mTitle = title;
 		getActionBar().setTitle(mTitle);
 	}
 
-	/**
-	 * When using the ActionBarDrawerToggle, you must call it during
-	 * onPostCreate() and onConfigurationChanged()...
-	 */
+	@Override
+	public void onBackPressed() {
+		// TODO Auto-generated method stub
+		int countStackSize = getFragmentManager().getBackStackEntryCount(), titleStackSize = titleStack.size();
+		
+		if(countStackSize == 0 && countStackSize == 0){
+			new AlertDialog.Builder(this)
+            .setMessage(R.string.dialog_close_confirm)
+            .setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int whichButton) {
+                	
+                }
+            })
+            .setPositiveButton(getString(R.string.comfirm), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int whichButton) {
+                	android.os.Process.killProcess(android.os.Process.myPid());
+                	onDestroy();
+                }
+            }).create().show();
+		}else if(countStackSize == titleStackSize){
+			mTitle = titleStack.pop();
+			getActionBar().setTitle(mTitle);
+			super.onBackPressed();
+		}else{
+			super.onBackPressed();
+		}
+	}
 
 	@Override
 	protected void onPostCreate(Bundle savedInstanceState) {
@@ -330,15 +373,25 @@ public class MainActivity extends Activity {
 	public static class HomePageFragment extends Fragment {
 
 		private Fragment mLibInfoListFragment;
+		private Fragment mIRSearchFragment;
+		private Fragment mRecentActivityFragment;
+		private Fragment mNewsFragment;
 		
 		private Activity mMainActivity;
 		private ImageView mLibInfoImageView;
+		private ImageView mNewsImageView;
+		private ImageView mIRSearchImageView;
+		private ImageView mPersonalBorrowImageView;
+		private ImageView mActivityImageView;
+		private ImageView mScannerImageView;
 		
 		public HomePageFragment(Activity mainActivity) {
 
 			mMainActivity = mainActivity;
 			mLibInfoListFragment = new LibInfoListFragment();
-			
+			mIRSearchFragment = new IRSearchFragment();
+			mRecentActivityFragment = new RecentActivityFragment();
+			mNewsFragment = new NewsFragment(mainActivity);
 		}
 
 		@Override
@@ -357,6 +410,48 @@ public class MainActivity extends Activity {
 					fragmentManager.beginTransaction().addToBackStack(null)
 							.add(R.id.content_frame, mLibInfoListFragment).commit();
 					mMainActivity.setTitle(R.string.homepage_ic_info);
+				}
+				
+			});
+			mIRSearchImageView = (ImageView) rootView.findViewById(R.id.imgBtnIRSearch);
+			mIRSearchImageView.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					FragmentManager fragmentManager = getActivity()
+							.getFragmentManager();
+					fragmentManager.beginTransaction().addToBackStack(null)
+							.add(R.id.content_frame, mIRSearchFragment).commit();
+					mMainActivity.setTitle(R.string.homepage_ic_search);
+				}
+				
+			});
+			mActivityImageView = (ImageView) rootView.findViewById(R.id.imgBtnActivity);
+			mActivityImageView.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					FragmentManager fragmentManager = getActivity()
+							.getFragmentManager();
+					fragmentManager.beginTransaction().addToBackStack(null)
+							.add(R.id.content_frame, mRecentActivityFragment).commit();
+					mMainActivity.setTitle(R.string.homepage_ic_activity);
+				}
+				
+			});
+			mNewsImageView = (ImageView) rootView.findViewById(R.id.imgBtnNews);
+			mNewsImageView.setOnClickListener(new OnClickListener(){
+
+				@Override
+				public void onClick(View v) {
+					// TODO Auto-generated method stub
+					FragmentManager fragmentManager = getActivity()
+							.getFragmentManager();
+					fragmentManager.beginTransaction().addToBackStack(null)
+							.add(R.id.content_frame, mNewsFragment).commit();
+					mMainActivity.setTitle(R.string.homepage_ic_activity);
 				}
 				
 			});

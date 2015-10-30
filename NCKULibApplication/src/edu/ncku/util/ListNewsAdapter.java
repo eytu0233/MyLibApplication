@@ -1,9 +1,10 @@
 package edu.ncku.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
-import edu.ncku.R;
-import edu.ncku.ui.MessageViewerFragment;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -11,36 +12,40 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import edu.ncku.R;
+import edu.ncku.ui.MessageViewerFragment;
 
-public class ListViewAdapter extends BaseAdapter {
+public class ListNewsAdapter extends BaseAdapter {
 
-	private static final String DEBUG_TAG = ListViewAdapter.class.getName();
+	private static final String DEBUG_TAG = ListNewsAdapter.class.getName();
 	
 	private Activity activity;
 	private Context context;
-	private LinkedList<Message> messages, showMessages;
+	private LinkedList<News> AllNews  = new LinkedList<News>(), showNews  = new LinkedList<News>();
 
 	private int show;
 
-	public ListViewAdapter(Activity activity, LinkedList<Message> messages,
+	public ListNewsAdapter(Activity activity, LinkedHashSet<News> newsSet,
 			int localShow) {
 		super();
 		this.activity = activity;
 		this.context = activity.getApplicationContext();
-		this.messages = messages;
-		this.show = (localShow > messages.size()) ? messages.size() : localShow;
+		this.show = (localShow > newsSet.size()) ? newsSet.size() : localShow;
 		
-		Log.d(DEBUG_TAG, "The number of messages : " +  messages.size());
+		for(News news : newsSet){
+			AllNews.add(news);
+		}
+		
+		Log.d(DEBUG_TAG, "The number of messages : " +  newsSet.size());
 		Log.d(DEBUG_TAG, "show : " + show);		
-
-		showMessages = new LinkedList<Message>();
+		
 		for (int i = 0; i < show; i++) {
-			showMessages.add(messages.get(i));
+			showNews.add(AllNews.get(i));
 		}
 	}
 
@@ -50,30 +55,37 @@ public class ListViewAdapter extends BaseAdapter {
 		TextView txtDate;
 	}
 
+	/**
+	 * Update news list which shows on the screen
+	 * 
+	 * @param moreShow the number of the news which want to show more
+	 * @return the number of the news which show more
+	 */
 	public int showMoreOldMessaage(int moreShow) {
 		try {
 			int original = this.getCount();
-			if (original == messages.size())
+			if (original == AllNews.size())
 				return 0;// 當沒有舊的訊息時不再更新
 
-			if (original + moreShow >= messages.size()) {
-				Log.v("ListViewAdapter", "滿");
-				for (int i = original; i < messages.size(); i++) {
-					showMessages.addLast(messages.get(i));
+			if (original + moreShow >= AllNews.size()) {
+				Log.v(DEBUG_TAG, "全部資料顯示出來");
+				for (int i = original; i < AllNews.size(); i++) {
+					showNews.addLast(AllNews.get(i));
 				}
-				this.notifyDataSetChanged();
-				Log.v("ListViewAdapter", "return "
+				this.notifyDataSetChanged();	// 通知更新UI
+				Log.v(DEBUG_TAG, "return "
 						+ (this.getCount() - original));
+				
 				return this.getCount() - original;
 			}
 
-			Log.v("ListViewAdapter", "未滿");
+			Log.v(DEBUG_TAG, "未滿");
 			for (int i = original; i < original + moreShow; i++) {
-				showMessages.addLast(messages.get(i));
+				showNews.addLast(AllNews.get(i));
 			}
 
 			this.notifyDataSetChanged();
-			Log.v("ListViewAdapter", "return " + moreShow);
+			Log.v(DEBUG_TAG, "return " + moreShow);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -82,19 +94,19 @@ public class ListViewAdapter extends BaseAdapter {
 
 	public int getNumShowedMsgs() {
 		// TODO Auto-generated method stub
-		return showMessages.size();
+		return showNews.size();
 	}
 
 	@Override
 	public int getCount() {
 		// TODO Auto-generated method stub
-		return showMessages.size();
+		return showNews.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
 		// TODO Auto-generated method stub
-		return showMessages.get(position);
+		return showNews.get(position);
 	}
 
 	@Override
@@ -120,13 +132,13 @@ public class ListViewAdapter extends BaseAdapter {
 				public void onClick(View v) {
 					// TODO Auto-generated method stub
 
-					Message msg = (Message) getItem(position);
+					News news = (News) getItem(position);
 
 					Bundle bundle = new Bundle();
-					bundle.putString("title", msg.getTitle());
-					bundle.putString("date", msg.getDate());
-					bundle.putString("unit", msg.getUnit());
-					bundle.putString("contents", msg.getContents());
+					bundle.putString("title", news.getTitle());
+					bundle.putString("date", new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(news.getTimeStamp()));
+					bundle.putString("unit", news.getUnit());
+					bundle.putString("contents", news.getContents());
 					
 					MessageViewerFragment msgViewerFragment = new MessageViewerFragment();
 					msgViewerFragment.setArguments(bundle);

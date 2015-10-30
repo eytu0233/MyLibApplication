@@ -54,7 +54,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:src="@drawable/main_icon_news" />
+                android:src="@drawable/news_selector" />
 
             <ImageButton
                 android:id="@+id/imgBtnIRSearch"
@@ -62,7 +62,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:src="@drawable/main_icon_irsearch" />
+                android:src="@drawable/irsearch_selector" />
 
             <ImageButton
                 android:id="@+id/imgBtnBorrow"
@@ -70,7 +70,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:src="@drawable/main_icon_borrow" />
+                android:src="@drawable/borrow_selector" />
         </LinearLayout>
 
         <LinearLayout
@@ -84,15 +84,15 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:src="@drawable/main_icon_info" />
+                android:src="@drawable/lib_info_selector" />
 
             <ImageButton
-                android:id="@+id/imageButton5"
+                android:id="@+id/imgBtnActivity"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:background="@null"
-                android:src="@drawable/main_icon_activity" />
+                android:src="@drawable/activity_selector" />
         </LinearLayout>
     </LinearLayout>
 

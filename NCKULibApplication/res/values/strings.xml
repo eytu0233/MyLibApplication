@@ -52,6 +52,7 @@
     <string name="homepage_ic_barrow">個人借閱</string>
     <string name="homepage_ic_activity">近期活動</string>
     <string name="dialog_subcription">請問確定要改變訂閱狀態嗎？</string>
+    <string name="dialog_close_confirm">請問確定要結束嗎？</string>
     <string name="network_disconnected">目前網路斷線,請重新嘗試</string>
     <string name="invalid_account_or_password">錯誤的帳號或密碼</string>
     <string name="void_account_or_password">帳號或密碼請不要為空</string>
@@ -65,6 +66,7 @@
     <string name="action_websearch">Web search</string>
     <string name="action_setting">Setting</string>
     <string name="app_not_available">Sorry, there\'s no web browser available</string>
+    <string name="news_empty">沒有任何最新消息</string>
     <string name="title">Title</string>
     <string name="_2014_03_10">Date</string>
     <string name="contents">Contents</string>

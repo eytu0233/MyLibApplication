@@ -12,19 +12,19 @@
     </PreferenceCategory>
     <PreferenceCategory
         android:key="MESSAGER_RELATION"
-        android:summary="推播功能相關"
-        android:title="推播功能相關" >
+        android:summary="最新消息相關"
+        android:title="最新消息相關" >
         <ListPreference
             android:entries="@array/preload_msgs_array"
             android:entryValues="@array/preload_msgs_value_array"
             android:key="PRELOAD_MSGS_MAX"
-            android:summary="推播系統一開始載入畫面的訊息數量,重啟後生效"
+            android:summary="最新消息一開始載入畫面的訊息數量,重啟後生效"
             android:title="一次載入最多訊息數量" />
         <ListPreference
             android:entries="@array/preload_msgs_array"
             android:entryValues="@array/load_msgs_value_array"
             android:key="LOAD_MSGS_MAX"
-            android:summary="推播系統加載訊息數量"
+            android:summary="最新消息加載訊息數量"
             android:title="加載時能夠載入的訊息數量" />
     </PreferenceCategory>
 
