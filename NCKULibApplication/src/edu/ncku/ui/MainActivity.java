@@ -1,24 +1,9 @@
 package edu.ncku.ui;
 
-import java.util.LinkedList;
-
-import edu.ncku.R;
-import edu.ncku.R.array;
-import edu.ncku.R.drawable;
-import edu.ncku.R.id;
-import edu.ncku.R.layout;
-import edu.ncku.R.menu;
-import edu.ncku.R.string;
-import edu.ncku.io.MessageRecieveService;
-import edu.ncku.ui.irsearch.IRSearchFragment;
-import edu.ncku.ui.libinfo.LibInfoListFragment;
-import edu.ncku.ui.news.NewsFragment;
-import edu.ncku.ui.recentActivity.RecentActivityFragment;
-import edu.ncku.util.CrashHandler;
 import android.app.Activity;
 import android.app.ActivityManager;
-import android.app.AlertDialog;
 import android.app.ActivityManager.RunningServiceInfo;
+import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Context;
@@ -27,7 +12,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -41,8 +25,18 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.ImageView;
+import android.widget.ListView;
+
+import java.util.LinkedList;
+
+import edu.ncku.R;
+import edu.ncku.io.MessageRecieveService;
+import edu.ncku.ui.irsearch.IRSearchFragment;
+import edu.ncku.ui.libinfo.LibInfoListFragment;
+import edu.ncku.ui.news.NewsFragment;
+import edu.ncku.ui.recentActivity.RecentActivityFragment;
+import edu.ncku.util.CrashHandler;
 
 public class MainActivity extends Activity {
 
@@ -67,7 +61,7 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		CrashHandler crashHandler = CrashHandler.getInstance(); 
+		CrashHandler crashHandler = CrashHandler.getInstance();
 		crashHandler.init(getApplicationContext()); 
 		
 		setContentView(R.layout.activity_main);
